@@ -13,12 +13,15 @@ import { SPFieldsContext } from "../contexts/SPFieldsContext";
 import { FeedbackContext } from "../contexts/FeedbackContext";
 import { AlertMeForm } from "./AlertMeForm";
 import { FeedbackForm } from "./FeedbackForm";
+import { DocumentBrandForm } from "./DocumentBrandForm";
 import { ShareLinkForm } from "../components/ShareLinkForm";
 import { menuItems, activeMenuItems } from "../constances/topMenu";
 import { copyLink } from "../utils/copyLink";
 import { alertMeLink } from "../utils/alertMeLink";
 import { VersionHistoryForm } from "../components/VersionHistoryForm";
 import { versionHistoryLink } from "../utils/versionHistoryLink";
+import SharePointService from "../services/SharePointService";
+import { getSavedDocuments } from "../utils/getLookUpFields";
 
 export const topMenuStyles = (): ICommandBarStyles => {
   const customStyle: ICommandBarStyles = {} as ICommandBarStyles;
@@ -31,6 +34,8 @@ export const TopPanel = (props): JSX.Element => {
   const { feedbackForm } = React.useContext(FeedbackContext);
   const [isCopyLinkDialog, setIsCopyLinkDialog] = React.useState(false);
   const [isShareLinkDialog, setIsShareLinkDialog] = React.useState(false);
+  const [isDocumentBrandForm, setDocumentBrandForm] = React.useState(false);
+  const [isDocumentBrandSaved, setDocumentBrandSaved] = React.useState(false);
   const [isAlertMeDialog, setIsAlertMeDialog] = React.useState(false);
   const [isFeedBackForm, setIsFeedBackForm] = React.useState(false);
   const [isVersionHistoryForm, setVersionHistoryForm] = React.useState(false);
@@ -42,6 +47,28 @@ export const TopPanel = (props): JSX.Element => {
   const { viewId, selectedListId, selectedListInternalName } = React.useContext(
     SPFieldsContext
   );
+
+  React.useEffect(() => {
+    getSavedDocuments().then(obj => {
+      obj.map(i => {
+        switch (i.Email === SharePointService.context.pageContext.user.email) {
+          case true:
+            setDocumentBrandSaved(true);
+            break;
+          case false:
+            setDocumentBrandSaved(false);
+            break;
+          default:
+            setDocumentBrandSaved(false);
+        }
+      });
+    });
+  }, []);
+
+  const _handleOnClose = () => {
+    setDocumentBrandForm(false);
+    setDocumentBrandSaved(false);
+  };
 
   return (
     <>
@@ -56,6 +83,7 @@ export const TopPanel = (props): JSX.Element => {
                     setIsAlertMeDialog,
                     setIsCopyLinkDialog,
                     setIsShareLinkDialog,
+                    setDocumentBrandForm,
                     setIsFeedBackForm,
                     selectedItems,
                     setVersionHistoryForm
@@ -132,6 +160,17 @@ export const TopPanel = (props): JSX.Element => {
               itemId={selectedItems[0].selectedItemId.toString()}
             />
           </Callout>
+        )}
+
+        {(isDocumentBrandForm || isDocumentBrandSaved) && (
+          <DocumentBrandForm
+            isOpen={isDocumentBrandForm || isDocumentBrandSaved}
+            onCloseForm={() => _handleOnClose()}
+            selectedItems={selectedItems}
+            selectedList={selectedListId}
+            setSelectedItems={setSelectedItems}
+            setClearSelection={setClearSelection}
+          />
         )}
 
         {isAlertMeDialog && (

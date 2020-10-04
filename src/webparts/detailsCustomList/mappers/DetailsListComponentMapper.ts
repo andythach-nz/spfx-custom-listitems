@@ -72,6 +72,6 @@ export const sortedItemsByGroups = (items: any[], sortByFields: any[]) => {
     items,
     sortByFields.map(s => s.internalName)
   );
-
+  console.log("sortedItems", sortedItems);
   return sortedItems;
 };

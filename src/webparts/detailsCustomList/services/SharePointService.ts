@@ -177,7 +177,28 @@ export class SharePointServiceManager {
 
   public pnp_getListItems = async (listTitle: string): Promise<any> => {
     try {
-      return await sp.web.lists.getByTitle(listTitle).items.get();
+      return await sp.web.lists.getByTitle(listTitle).items.getAll(500);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  public pnp_deleteItem = async (listTitle: string, itemID: number) => {
+    const list = sp.web.lists.getByTitle(listTitle);
+    await list.items.getById(itemID).delete();
+  };
+
+  public pnp_getListItem = async (
+    listTitle: string,
+    itemID: number,
+    expand: string[]
+  ): Promise<any> => {
+    try {
+      return await sp.web.lists
+        .getByTitle(listTitle)
+        .items.getById(itemID)
+        .expand(...expand)
+        .get();
     } catch (error) {
       throw error;
     }

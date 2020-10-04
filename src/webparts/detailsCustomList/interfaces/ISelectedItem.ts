@@ -7,4 +7,5 @@ export interface ISelectedItem {
   selectedItemDocId: string;
   selectedItemExt: string;
   selectedItemUniqueId: string;
+  selectedList: string;
 }

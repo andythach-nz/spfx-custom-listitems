@@ -14,7 +14,8 @@ import {
   ConstrainMode,
   IRenderFunction,
   ITooltipHostProps,
-  TooltipHost
+  TooltipHost,
+  IGroupHeaderProps
 } from "office-ui-fabric-react";
 import { SPFieldsContext } from "../contexts/SPFieldsContext";
 import { SPItemsContext } from "../contexts/SPItemsContext";
@@ -296,7 +297,7 @@ export const DetailsListComponent: React.FC = (): JSX.Element => {
       <ScrollablePane scrollbarVisibility={ScrollbarVisibility.always}>
         <DetailsList
           setKey="dataSet"
-          items={items}
+          items={sortedItemsByGroups(items, sortByFields)}
           columns={columns}
           selectionMode={SelectionMode.multiple}
           onColumnHeaderClick={onColumnHeaderClick}

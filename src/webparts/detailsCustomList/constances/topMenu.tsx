@@ -21,13 +21,32 @@ const getDisplayAttr = (selectedItems: ISelectedItem[]) => {
 
 const checkMultiForAspx = (selectedItems: ISelectedItem[]) => {
   let results = "";
-  for (let i = 0; i < selectedItems.length; i++) {
-    if (selectedItems[i].selectedItemExt === "aspx") {
-      results = "none";
-      break;
-    } else {
-      results = "inline-block";
+  if (selectedItems.length === 1) {
+    for (let i = 0; i < selectedItems.length; i++) {
+      if (
+        selectedItems[i].selectedItemExt === "aspx" ||
+        selectedItems[i].selectedItemExt === "url"
+      ) {
+        results = "none";
+        break;
+      } else {
+        results = "inline-block";
+      }
     }
+  } else if (selectedItems.length > 1) {
+    for (let i = 0; i < selectedItems.length; i++) {
+      if (
+        selectedItems[i].selectedItemExt !== "aspx" ||
+        selectedItems[i].selectedItemExt !== "url"
+      ) {
+        results = "inline-block";
+        break;
+      } else {
+        results = "none";
+      }
+    }
+  } else {
+    results = "none";
   }
   return results;
 };
@@ -82,6 +101,7 @@ export const activeMenuItems = (
   onAlertMe: (value: boolean) => void,
   onCopyLink: (value: boolean) => void,
   onShareLink: (value: boolean) => void,
+  onDocumentBrandForm: (value: boolean) => void,
   onForm: (value: boolean) => void,
   selectedItems: ISelectedItem[],
   onVersionHistory: (value: boolean) => void
@@ -172,7 +192,11 @@ export const activeMenuItems = (
     iconProps: { iconName: "Download" },
     style: {
       backgroundColor: "#fff",
-      display: checkMultiForAspx(selectedItems)
+      display:
+        selectedItems.length === 1 &&
+        selectedItems[0].selectedItemExt === "aspx"
+          ? "none"
+          : "inline-block"
     },
     href: selectedItems.length === 1 && dowloadSingleFile(selectedItems[0]),
     onClick:
@@ -237,5 +261,16 @@ export const activeMenuItems = (
           : "none"
     },
     onClick: () => onVersionHistory(true)
+  },
+  {
+    key: "brandDoc",
+    text: "Brand Documents",
+    cacheKey: "myCacheKey",
+    iconProps: { iconName: "Tag" },
+    style: {
+      backgroundColor: "#fff",
+      display: checkMultiForAspx(selectedItems)
+    },
+    onClick: () => onDocumentBrandForm(true)
   }
 ];

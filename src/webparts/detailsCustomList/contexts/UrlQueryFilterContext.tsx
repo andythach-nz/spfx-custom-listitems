@@ -12,6 +12,8 @@ export const UrlQueryFilterContextProvider: React.FC<IDetailsListAppProps> = pro
   const [urlParams, setUrlParam] = useState<UrlQueryParameterCollection>();
   const [urlQueryActive, setUrlQueryActive] = useState<boolean>(false);
 
+  console.log("UrlQueryFilterContextProvider props", props);
+
   useEffect(() => {
     setUrlParam(props.urlParams);
   }, [props.urlParams]);

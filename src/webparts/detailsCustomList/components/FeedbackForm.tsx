@@ -28,7 +28,7 @@ import {
   getFeedbackCategoriesDocument,
   getFeedbackAreas
 } from "../utils/getLookUpFields";
-const formImage: string = require("../images/FormResource.png");
+const formImage: string = require("../images/TheDownerStandard.jpg");
 
 const itemAlignmentsStackTokens: IStackTokens = {
   childrenGap: 2
@@ -253,55 +253,146 @@ export const FeedbackForm = ({
     });
   };
 
-  const _onRenderDisplayFormFields = (): JSX.Element[] =>
-    feedbackFormSettings.feedbackFields.map(row => {
-      if (row.valueMarker === "displayName") {
+  const _onRenderDisplayFormFields = (): JSX.Element[] => {
+    return feedbackFormSettings.feedbackFields.map(row => {
+      if (row.internalColumnName === "Title") {
         return (
-          <div style={{ display: "inline-flex" }}>
+          <div style={{ display: "flex" }}>
             <Label style={{ fontWeight: 500, paddingRight: "5px" }}>
-              Name:{" "}
+              {row.internalColumnName === "Title"
+                ? row.labelMarker + ": "
+                : " "}
             </Label>
             <Label>
               {SharePointService.context.pageContext.user.displayName}
             </Label>
           </div>
         );
-      } else if (row.valueMarker === "email") {
+      } else if (row.internalColumnName === "Email") {
         return (
-          <div style={{ display: "inline-flex" }}>
+          <div style={{ display: "flex" }}>
             <Label style={{ fontWeight: 500, paddingRight: "5px" }}>
-              Email:{" "}
+              {row.internalColumnName === "Email"
+                ? row.labelMarker + ": "
+                : " "}
             </Label>
-            <Label>
-              {" " + SharePointService.context.pageContext.user.email}
-            </Label>
+            <Label>{SharePointService.context.pageContext.user.email}</Label>
           </div>
         );
-      } else if (row.valueMarker === "department") {
+      } else if (row.internalColumnName === "Department") {
         return (
-          <div style={{ display: "inline-flex" }}>
+          <div style={{ display: "flex" }}>
             <Label style={{ fontWeight: 500, paddingRight: "5px" }}>
-              Department:{" "}
+              {row.internalColumnName === "Department"
+                ? row.labelMarker + ": "
+                : " "}
             </Label>
-            <Label>
-              {" " + feedbackFormValues.Department
-                ? feedbackFormValues.Department
-                : ""}
-            </Label>
+            <Label>{feedbackFormValues.Department}</Label>
           </div>
         );
-      } else if (row.valueMarker === "feedbackType") {
+      } else if (row.internalColumnName === "FeedbackType") {
         return (
           <Dropdown
             placeholder="Select an option"
-            label="I would like to submit feedback regarding:"
+            label={
+              row.internalColumnName === "FeedbackType"
+                ? row.labelMarker + ": "
+                : " "
+            }
             id="feedbackTypeSelectionKeys"
             options={feedbackTypeOptions}
             onChange={_handleOnChange}
           />
         );
+      } else if (row.internalColumnName === "FeedbackCategory") {
+        return (
+          <Dropdown
+            isDisabled={isCategoryTypeDisable}
+            placeholder="Select an option"
+            multiSelect
+            label={
+              row.internalColumnName === "FeedbackCategory"
+                ? row.labelMarker + ": "
+                : " "
+            }
+            id="feedbackCategorySelectionKeys"
+            options={feedbackCategories}
+            selectedKeys={[...feedbackFormValues.feedbackCategorySelectionKeys]}
+            onChange={_handleOnChange}
+          />
+        );
+      } else if (row.internalColumnName === "DocumentName") {
+        return (
+          <TextField
+            label={
+              row.internalColumnName === "DocumentName"
+                ? row.labelMarker + ": "
+                : " "
+            }
+            id="documentNameId"
+            value={feedbackFormValues.DocumentName}
+            onChange={(e: any, document?: string) => {
+              setfeedbackFormValues({
+                ...feedbackFormValues,
+                DocumentName: document
+              });
+            }}
+          />
+        );
+      } else if (row.internalColumnName === "PageURL") {
+        return (
+          <TextField
+            label={
+              row.internalColumnName === "PageURL"
+                ? row.labelMarker + ": "
+                : " "
+            }
+            required={!isDisable}
+            value={feedbackFormValues.PageURL}
+            onChange={(e: any, newValue?: string) => {
+              setfeedbackFormValues({
+                ...feedbackFormValues,
+                PageURL: newValue
+              });
+            }}
+          />
+        );
+      } else if (row.internalColumnName === "Stream") {
+        return (
+          <Dropdown
+            placeholder="Select an option"
+            label={
+              row.internalColumnName === "Stream" ? row.labelMarker + ": " : " "
+            }
+            id="feedbackStreamOptions"
+            options={feedbackAreas}
+            selectedKey={feedbackFormValues.Stream}
+            onChange={_handleOnChange}
+          />
+        );
+      } else if (row.internalColumnName === "Feedback") {
+        return (
+          <TextField
+            multiline
+            label={
+              row.internalColumnName === "Feedback"
+                ? row.labelMarker + ": "
+                : " "
+            }
+            rows={4}
+            onChange={(e: any, newValue?: string) =>
+              setfeedbackFormValues({
+                ...feedbackFormValues,
+                Feedback: newValue
+              })
+            }
+            value={feedbackFormValues.Feedback}
+            placeholder="Your feedback..."
+          />
+        );
       }
     });
+  };
 
   const _onRenderFooterContent = () => {
     return (
@@ -325,7 +416,7 @@ export const FeedbackForm = ({
       <Stack verticalAlign="center">
         <Image
           src={formImage}
-          width={300}
+          width={360}
           height={110}
           styles={{ root: { margin: "0 auto" } }}
         />
@@ -373,58 +464,6 @@ export const FeedbackForm = ({
 
           {_onRenderDisplayFormFields()}
 
-          <Dropdown
-            isDisabled={isCategoryTypeDisable}
-            placeholder="Select an option"
-            multiSelect
-            label="Feedback Category:"
-            id="feedbackCategorySelectionKeys"
-            options={feedbackCategories}
-            onChange={_handleOnChange}
-            selectedKeys={[...feedbackFormValues.feedbackCategorySelectionKeys]}
-          />
-
-          <TextField
-            label="Document(s) selected:"
-            value={feedbackFormValues.DocumentName}
-          />
-
-          <TextField
-            label="Page URL:"
-            disabled={isDisable}
-            required={!isDisable}
-            value={feedbackFormValues.PageURL}
-            onChange={(e: any, newValue?: string) => {
-              setfeedbackFormValues({
-                ...feedbackFormValues,
-                PageURL: newValue
-              });
-            }}
-          />
-
-          <Dropdown
-            placeholder="Select an option"
-            label="The feedback is for the following areas:"
-            id="feedbackStreamOptions"
-            options={feedbackAreas}
-            onChange={_handleOnChange}
-            selectedKey={feedbackSelectedAreas}
-          />
-
-          <TextField
-            multiline
-            label="Please provide more information:"
-            rows={4}
-            onChange={(e: any, newValue?: string) =>
-              setfeedbackFormValues({
-                ...feedbackFormValues,
-                Feedback: newValue
-              })
-            }
-            value={feedback}
-            placeholder="Your feedback..."
-          />
-
           <FilePicker
             bingAPIKey="ArMip2E-OGmxgNXdjqFvjKPsIkUu8tfWlsaIROS3vWkl26KCQpVdVLD2ua63-bOr"
             hideWebSearchTab={true}
@@ -439,7 +478,13 @@ export const FeedbackForm = ({
               ".ico",
               ".png",
               ".jxr",
-              ".svg"
+              ".svg",
+              ".docx",
+              ".pdf",
+              ".xlsx",
+              ".txt",
+              ".ppt",
+              ".doc"
             ]}
             buttonIcon="FileImage"
             buttonLabel="Upload a File"

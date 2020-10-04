@@ -418,12 +418,6 @@ export default class DownerStandardDetailsListGroupedWebPart extends BaseClientS
                   value: this.properties.feedbackFields,
                   fields: [
                     {
-                      id: "title",
-                      title: "Title",
-                      type: CustomCollectionFieldType.string,
-                      required: true
-                    },
-                    {
                       id: "internalColumnName",
                       title: "Internal column name",
                       type: CustomCollectionFieldType.string,
@@ -446,35 +440,9 @@ export default class DownerStandardDetailsListGroupedWebPart extends BaseClientS
                       required: true
                     },
                     {
-                      id: "valueMarker",
-                      title: "Value Marker",
-                      type: CustomCollectionFieldType.dropdown,
-                      options: [
-                        {
-                          key: "displayName",
-                          text: "Display User Name"
-                        },
-                        {
-                          key: "email",
-                          text: "Display User Email"
-                        },
-                        {
-                          key: "department",
-                          text: "User Department"
-                        },
-                        {
-                          key: "feedbackType",
-                          text: "Feedback Type"
-                        },
-                        {
-                          key: "feedbackCategory",
-                          text: "Feedback Category"
-                        },
-                        {
-                          key: "feedbackTextfield",
-                          text: "Feedback Textfield"
-                        }
-                      ],
+                      id: "labelMarker",
+                      title: "Label Marker",
+                      type: CustomCollectionFieldType.string,
                       required: true
                     }
                   ],

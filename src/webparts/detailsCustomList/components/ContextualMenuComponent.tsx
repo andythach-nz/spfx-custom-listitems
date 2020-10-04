@@ -21,16 +21,38 @@ import { VersionHistoryForm } from "../components/VersionHistoryForm";
 import { versionHistoryLink } from "../utils/versionHistoryLink";
 import { manageAlertLink } from "../utils/manageAlertLink";
 import { ISelectedItem } from "../interfaces/ISelectedItem";
+import { DocumentBrandForm } from "./DocumentBrandForm";
+import { getSavedDocuments } from "../utils/getLookUpFields";
+import SharePointService from "../services/SharePointService";
 
 const checkMultiForAspx = (selectedItems: ISelectedItem[]) => {
   let results = "";
-  for (let i = 0; i < selectedItems.length; i++) {
-    if (selectedItems[i].selectedItemExt === "aspx") {
-      results = "none";
-      break;
-    } else {
-      results = "inline-block";
+  if (selectedItems.length === 1) {
+    for (let i = 0; i < selectedItems.length; i++) {
+      if (
+        selectedItems[i].selectedItemExt === "aspx" ||
+        selectedItems[i].selectedItemExt === "url"
+      ) {
+        results = "none";
+        break;
+      } else {
+        results = "inline-block";
+      }
     }
+  } else if (selectedItems.length > 1) {
+    for (let i = 0; i < selectedItems.length; i++) {
+      if (
+        selectedItems[i].selectedItemExt !== "aspx" ||
+        selectedItems[i].selectedItemExt !== "url"
+      ) {
+        results = "inline-block";
+        break;
+      } else {
+        results = "none";
+      }
+    }
+  } else {
+    results = "none";
   }
   return results;
 };
@@ -43,11 +65,42 @@ export const ContextualMenuComponent: React.FC<IContextualMenuComponentProps> = 
     const [isAlerMeDialog, setAlerMeDialog] = React.useState<boolean>(false);
     const [isFeedbackForm, setFeedbackForm] = React.useState<boolean>(false);
     const [isVersionHistoryForm, setVersionHistoryForm] = React.useState(false);
+    const [isDocumentBrandForm, setDocumentBrandForm] = React.useState(false);
+    const [isDocumentBrandSaved, setDocumentBrandSaved] = React.useState(false);
     const { selectedListId, selectedListInternalName } = React.useContext(
       SPFieldsContext
     );
-    const { selectedItems } = React.useContext(SPItemsContext);
+    const {
+      selectedItems,
+      setSelectedItems,
+      setClearSelection
+    } = React.useContext(SPItemsContext);
     const { feedbackForm } = React.useContext(FeedbackContext);
+
+    React.useEffect(() => {
+      getSavedDocuments().then(obj => {
+        obj.map(i => {
+          switch (
+            i.Email === SharePointService.context.pageContext.user.email
+          ) {
+            case true:
+              setDocumentBrandSaved(true);
+              break;
+            case false:
+              setDocumentBrandSaved(false);
+              break;
+            default:
+              setDocumentBrandSaved(false);
+          }
+        });
+      });
+      console.log("isDocumentBrandSaved", isDocumentBrandSaved);
+    }, []);
+
+    const _handleOnClose = () => {
+      setDocumentBrandForm(false);
+      setDocumentBrandSaved(false);
+    };
 
     return (
       <div className="calloutArea">
@@ -127,7 +180,10 @@ export const ContextualMenuComponent: React.FC<IContextualMenuComponentProps> = 
                     : () => null,
                 style: {
                   display:
-                    selectedItems.length > 0 && checkMultiForAspx(selectedItems)
+                    selectedItems.length === 1 &&
+                    selectedItems[0].selectedItemExt === "aspx"
+                      ? "none"
+                      : "inline-block"
                 }
               },
               {
@@ -137,9 +193,9 @@ export const ContextualMenuComponent: React.FC<IContextualMenuComponentProps> = 
                 style: {
                   display:
                     selectedItems.length === 1 &&
-                    selectedItems[0].selectedItemExt !== "aspx"
-                      ? "inline-block"
-                      : "none"
+                    selectedItems[0].selectedItemExt === "aspx"
+                      ? "none"
+                      : "inline-block"
                 }
               },
               {
@@ -163,7 +219,6 @@ export const ContextualMenuComponent: React.FC<IContextualMenuComponentProps> = 
                       : "none"
                 }
               },
-
               {
                 key: "versionHistory",
                 text: "Version History",
@@ -176,6 +231,15 @@ export const ContextualMenuComponent: React.FC<IContextualMenuComponentProps> = 
                       : "none"
                 },
                 onClick: () => setVersionHistoryForm(true)
+              },
+              {
+                key: "brandDoc",
+                text: "Brand Documents",
+                cacheKey: "myCacheKey",
+                style: {
+                  display: checkMultiForAspx(selectedItems)
+                },
+                onClick: () => setDocumentBrandForm(true)
               }
             ]
           }}
@@ -255,6 +319,17 @@ export const ContextualMenuComponent: React.FC<IContextualMenuComponentProps> = 
               selectedListId,
               selectedItems[0].selectedItemId.toString()
             )}
+          />
+        )}
+
+        {isDocumentBrandForm && (
+          <DocumentBrandForm
+            isOpen={isDocumentBrandForm}
+            onCloseForm={() => _handleOnClose()}
+            selectedItems={selectedItems}
+            selectedList={selectedListId}
+            setSelectedItems={setSelectedItems}
+            setClearSelection={setClearSelection}
           />
         )}
       </div>
